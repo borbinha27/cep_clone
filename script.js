@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', function () {
     const cepInput = document.getElementById('cep');
     const erroDiv = document.getElementById('erro');
+    const btnSalvar = document.getElementById('salvar');
 
     cepInput.addEventListener('input', function (e) {
         let value = e.target.value.replace(/\D/g, '');
@@ -17,6 +18,8 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
+    btnSalvar.addEventListener('click', salvarDados);
+
     function consultarCEP() {
         const cep = cepInput.value.trim();
 
@@ -26,7 +29,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         erroDiv.style.display = 'none';
-        limparCampos();
 
         fetch(`https://viacep.com.br/ws/${cep}/json/`)
             .then(response => {
@@ -58,14 +60,33 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('ddd').value = data.ddd || '';
     }
 
+    function salvarDados() {
+        const campos = ['nome', 'cep', 'logradouro', 'bairro', 'localidade', 'uf', 'complemento', 'unidade', 'estado', 'regiao', 'ddd'];
+        const dados = {};
+
+        campos.forEach(id => {
+            const input = document.getElementById(id);
+            if (input) dados[id] = input.value;
+        });
+
+        const lista = JSON.parse(localStorage.getItem('listaCep')) || [];
+
+        lista.push(dados);
+
+        localStorage.setItem('listaCep', JSON.stringify(lista));
+
+        limparCampos();
+
+        alert('Dados salvos com sucesso!');
+    }
+
     function limparCampos() {
-        const campos = ['logradouro', 'bairro', 'localidade', 'uf', 'complemento', 'unidade', 'estado', 'regiao', 'ddd'];
+        const campos = ['nome', 'cep', 'logradouro', 'bairro', 'localidade', 'uf', 'complemento', 'unidade', 'estado', 'regiao', 'ddd'];
         campos.forEach(id => {
             const input = document.getElementById(id);
             if (input) input.value = '';
         });
     }
-
 
     function mostrarErro(mensagem) {
         erroDiv.textContent = mensagem;
